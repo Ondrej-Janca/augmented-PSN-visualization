@@ -1,8 +1,3 @@
-# This file contains the revised cluster profile charts,
-# showing the practically attainable values of MCC (the minimum case)
-# as described in the revised version of the paper.
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List
@@ -12,9 +7,8 @@ import os
 def plot_cluster_profile_chart(
         class_names: List[str],
         class_colors: List[str],
-        mcc_values: List[float],
-        r_mcc_values: List[float],
-        c_purity_values: List[float],
+        rMCC_values: List[float],
+        cPurity_values: List[float],
         cluster_color: str,
         export_path: str,
         file_name: str,
@@ -26,9 +20,8 @@ def plot_cluster_profile_chart(
 
     :param class_names: List of category names (groups).
     :param class_colors: List of class color-codes (as hex strings).
-    :param mcc_values: List of float values of raw MCC.
-    :param r_mcc_values: List of float values of rescaled MCC (rMCC).
-    :param c_purity_values: List of float values of Connection Purity (cPurity).
+    :param rMCC_values: List of float values of rescaled MCC (rMCC).
+    :param cPurity_values: List of float values of Connection Purity (cPurity).
     :param cluster_color: A color of the horizontal line above the chart denoting cluster membership (as a hex string).
     :param export_path: Path of the desired export folder.
     :param file_name: Export file name.
@@ -37,33 +30,30 @@ def plot_cluster_profile_chart(
     :param measure_threshold_strong: (default 0.7) Threshold for the "very good" relationship.
     """
 
-    assert len(class_names) == len(mcc_values) == len(r_mcc_values) == len(c_purity_values) == len(class_colors), \
-        "Lists of class names, class colors, MCC values, rMCC values, and cPurity values must be of the same length."
+    assert len(class_names) == len(rMCC_values) == len(cPurity_values) == len(class_colors), \
+        "Lists of class names, class colors, rMCC values, and cPurity values must be of the same length."
 
     if exclude_absent_classes:
-        filtered_data = [(name, color, mcc, r_mcc, purity) for name, color, mcc, r_mcc, purity in
-                         zip(class_names, class_colors, mcc_values, r_mcc_values, c_purity_values) if mcc > -1]
+        filtered_data = [(name, color, mcc, purity) for name, color, mcc, purity in
+                         zip(class_names, class_colors, rMCC_values, cPurity_values) if mcc > -1]
 
         if not filtered_data:
             print("No valid data to plot.")
             return
 
-        class_names, class_colors, mcc_values, r_mcc_values, c_purity_values = zip(*filtered_data)
+        class_names, class_colors, rMCC_values, cPurity_values = zip(*filtered_data)
 
     # Settings for an automatic adjustment of figure width according to the number of classes
-    scale_factor = 2  # Controls how much the width expands for each class
+    scale_factor = 2  # Controls how much the width expands per class
     fig_width = len(class_names) * scale_factor
     fig_height = 10
     bar_width = 0.3
-    bar_gap=0.03
 
     plt.style.use('seaborn-v0_8-darkgrid')
-    plot_face_color = '#eaeaf2'
-    hatch_styles = [None, 'X']
+    hatch_styles = [None, '//']
 
-    # first prepare the plot with rMCC values
     series = ['rMCC', 'cPurity']
-    values = np.array([mcc_values, c_purity_values]).T  # Convert to 2D array (rows: classes, columns: series)
+    values = np.array([rMCC_values, cPurity_values]).T  # Convert to 2D array (rows: classes, columns: series)
     x = np.arange(len(class_names))
 
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
@@ -72,33 +62,24 @@ def plot_cluster_profile_chart(
     for i in range(len(class_names)):
         group_x_positions = []
         for j in range(len(series)):
-            bar_x_pos = x[i] + (j - len(series) / 2) * (bar_width + bar_gap)  # Adjust position
-            if j == 0:  # underlay mcc (first series) with r_mcc
-                bars = ax.bar(bar_x_pos, r_mcc_values[i], bar_width,
-                              color="#ffffff",
-                              edgecolor='black',
-                              linewidth=1,
-                              alpha=0.9,
-                              zorder=3)
-            bars = ax.bar(bar_x_pos, values[i, j], bar_width,
+            bar_x = x[i] + (j - len(series) / 2) * bar_width  # Adjust position
+            bars = ax.bar(bar_x, values[i, j], bar_width,
                           color=class_colors[i],
                           edgecolor='black',
                           hatch=hatch_styles[j],
                           linewidth=1,
                           alpha=0.9,
-                          zorder=4)
-
-
-            group_x_positions.append(bar_x_pos)
+                          zorder=3)
+            group_x_positions.append(bar_x)
 
         group_center = np.mean(group_x_positions)
         group_centers.append(group_center)
 
     # Axis settings
-    ax.set_ylim((-1.01, 1.15))
+    ax.set_ylim([-1, 1.15])
     ax.set_yticks([])
     if len(class_names) == 1:
-        ax.set_xlim((-1, 0.75))
+        ax.set_xlim([-1, 0.75])
     ax.set_xticks([])
 
     # cluster identity indicator band
@@ -107,7 +88,7 @@ def plot_cluster_profile_chart(
     # Threshold lines
     # 0 line
     line_width = 14
-    ax.axhline(y=0, linewidth=line_width, color="black", alpha=0.8, zorder=5)
+    ax.axhline(y=0, linewidth=line_width, color="black", alpha=0.8, zorder=4)
     # positive lines
     ax.axhline(y=measure_threshold_strong, linewidth=line_width, color="tab:green", alpha=0.8, zorder=2)
     ax.axhline(y=measure_threshold_medium, linewidth=line_width, color="tab:red", alpha=0.8, zorder=2)
@@ -117,9 +98,6 @@ def plot_cluster_profile_chart(
 
     # Make gridlines subtle
     ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
-
-    # Adjust axes face color
-    ax.set_facecolor(plot_face_color)
 
     # Export
     if not os.path.isdir(export_path):
@@ -136,9 +114,8 @@ def plot_cluster_profile_chart(
 def plot_dataset_cluster_profile_charts(
         class_names: List,
         class_colors: List,
-        mcc_values: dict,
-        r_mcc_values: dict,
-        c_purity_values: dict,
+        rMCC_values: dict,
+        cPurity_values: dict,
         cluster_colors: dict,
         export_path: str,
         exclude_absent_classes: bool) -> None:
@@ -153,15 +130,12 @@ def plot_dataset_cluster_profile_charts(
     :param export_path:Path of the desired export folder.
     :param exclude_absent_classes: (default False) Exclude classes with MCC = -1.
     """
-    for key in mcc_values.keys():
-        assert mcc_values.keys() == r_mcc_values.keys() == c_purity_values.keys() == cluster_colors.keys(), \
-            "The cluster names must be consistent between mcc_values, r_mcc_values, c_purity_values, and cluster_colors."
+    for key in rMCC_values.keys():
         plot_cluster_profile_chart(
             class_names=class_names,
             class_colors=class_colors,
-            mcc_values=mcc_values[key],
-            r_mcc_values=r_mcc_values[key],
-            c_purity_values=c_purity_values[key],
+            rMCC_values=rMCC_values[key],
+            cPurity_values=cPurity_values[key],
             cluster_color=cluster_colors[key],
             export_path=export_path,
             file_name=key,
