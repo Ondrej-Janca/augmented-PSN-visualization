@@ -172,4 +172,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-/AASTMT/
+/paper_data/
+/demo_data/

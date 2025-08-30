@@ -1,3 +1,7 @@
+# This file contains the data used in the paper where this package was introduced.
+# (reference to be added once published)
+
+
 from cluster_profile_charts import plot_dataset_cluster_profile_charts
 
 
@@ -43,7 +47,7 @@ def exp1():
         cluster_colors=cluster_colors,
         class_names=class_names,
         class_colors=class_colors,
-        export_path="paper_figures/exp1/",
+        export_path="demo_data/paper_figures/exp1/",
         exclude_absent_classes=False
     )
 
@@ -91,7 +95,7 @@ def exp2():
         cluster_colors=cluster_colors,
         class_names=class_names,
         class_colors=class_colors,
-        export_path="paper_figures/exp2/",
+        export_path="demo_data/paper_figures/exp2/",
         exclude_absent_classes=False
     )
 
@@ -142,7 +146,7 @@ def exp3():
         cluster_colors=cluster_colors,
         class_names=class_names,
         class_colors=class_colors,
-        export_path="paper_figures/exp3/",
+        export_path="demo_data/paper_figures/exp3/",
         exclude_absent_classes=False
     )
 
@@ -202,7 +206,7 @@ def exp4():
         cluster_colors=cluster_colors,
         class_names=class_names,
         class_colors=class_colors,
-        export_path="paper_figures/exp4/",
+        export_path="demo_data/paper_figures/exp4/",
         exclude_absent_classes=False
     )
 
@@ -253,13 +257,17 @@ def exp_network_ans2023():
         cluster_colors=cluster_colors,
         class_names=class_names,
         class_colors=class_colors,
-        export_path="paper_figures/ra_network/",
+        export_path="demo_data/paper_figures/ra_network/",
         exclude_absent_classes=False
     )
 
-
-exp1()
-exp2()
-exp3()
-exp4()
-exp_network_ans2023()
+def run_demo():
+    print("Plotting demo data..."
+          "---------------------")
+    exp1()
+    exp2()
+    exp3()
+    exp4()
+    exp_network_ans2023()
+    print("----------------------------"
+          "\nDemo data plotting finished.")
