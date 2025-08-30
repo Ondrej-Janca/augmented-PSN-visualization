@@ -262,12 +262,14 @@ def exp_network_ans2023():
     )
 
 def run_demo():
-    print("Plotting demo data..."
+    print("Plotting demo data...\n"
           "---------------------")
     exp1()
     exp2()
     exp3()
     exp4()
     exp_network_ans2023()
-    print("----------------------------"
-          "\nDemo data plotting finished.")
+    print("----------------------------\n"
+          "Demo data plotting finished.")
+
+run_demo()
