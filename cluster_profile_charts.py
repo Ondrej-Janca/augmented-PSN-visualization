@@ -91,6 +91,7 @@ def plot_cluster_profile_chart(
                               linewidth=2,
                               alpha=0.9,
                               zorder=3)
+            plt.rcParams.update({'hatch.linewidth': 2})
             bars = ax.bar(bar_x_pos, values[i, j], bar_width,
                           color=class_colors[i],
                           edgecolor='black',
@@ -112,16 +113,15 @@ def plot_cluster_profile_chart(
     ax.set_xticks([])
 
     # cluster identity indicator band
-    band_y = 1.1
-    ax.axhline(y=band_y, xmin=0, xmax=1, color=cluster_color, linewidth=50, clip_on=False, solid_capstyle='butt')
+    ax.axhspan(1.01, 1.2, color=cluster_color, clip_on=False)
     if bar_text:
         r, g, b = to_rgb(cluster_color)
         luminance = 0.2126*r + 0.7152*g + 0.0722*b
         ax.text(
-            0.5, band_y - 0.024, file_name,
+            0.5, 1.025, file_name,
             transform=ax.get_yaxis_transform(),
-            ha="center", va="center",
-            fontsize=36, fontweight="bold",
+            ha="center",
+            fontsize=50, fontweight="bold",
             color="black" if luminance > 0.5 else "white",
             zorder=6
         )

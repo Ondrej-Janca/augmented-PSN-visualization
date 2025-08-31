@@ -48,7 +48,8 @@ def exp1():
         class_names=class_names,
         class_colors=class_colors,
         export_path="demo_data/paper_figures/exp1/",
-        exclude_absent_classes=False
+        exclude_absent_classes=False,
+        bar_text=True
     )
 
 def exp2():
