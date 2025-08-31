@@ -25,6 +25,7 @@ def plot_cluster_profile_chart(
         measure_threshold_strong: float = 0.7,
         bar_width: float = 0.3,
         bar_gap: float = 0.03,
+        bar_text: bool = False,
         scale_factor: float = 2,
         fig_height: float = 10,
         export_format: str = 'svg'
@@ -36,7 +37,7 @@ def plot_cluster_profile_chart(
     :param mcc_values: List of float values of raw MCC.
     :param r_mcc_values: List of float values of rescaled MCC (rMCC).
     :param c_purity_values: List of float values of Connection Purity (cPurity).
-    :param cluster_color: A color of the horizontal line above the chart denoting cluster membership (as a hex string).
+    :param cluster_color: A hex string of the color of the band above the chart denoting cluster membership.
     :param export_path: Path of the desired export folder.
     :param file_name: Export file name.
     :param exclude_absent_classes: (default False) Exclude classes with MCC = -1.
@@ -44,6 +45,7 @@ def plot_cluster_profile_chart(
     :param measure_threshold_strong: (default 0.7) Threshold for the "very good" relationship.
     :param bar_width: adjust width of plot bars.
     :param bar_gap: adjust gap between plot bars.
+    :param bar_text: Toggle for rendering cluster name in the cluster membership bad.
     :param scale_factor: adjust how much will figure expand horizontally for each class
     :param fig_height: adjust figure height.
     :param export_format: One of the file extensions supported by matplotlib: png, pdf, ps, eps and svg.
@@ -86,14 +88,14 @@ def plot_cluster_profile_chart(
                 bars = ax.bar(bar_x_pos, r_mcc_values[i], bar_width,
                               color="#ffffff",
                               edgecolor='black',
-                              linewidth=1,
+                              linewidth=2,
                               alpha=0.9,
                               zorder=3)
             bars = ax.bar(bar_x_pos, values[i, j], bar_width,
                           color=class_colors[i],
                           edgecolor='black',
                           hatch=hatch_styles[j],
-                          linewidth=1,
+                          linewidth=2,
                           alpha=0.9,
                           zorder=4)
 
@@ -112,21 +114,22 @@ def plot_cluster_profile_chart(
     # cluster identity indicator band
     band_y = 1.1
     ax.axhline(y=band_y, xmin=0, xmax=1, color=cluster_color, linewidth=50, clip_on=False, solid_capstyle='butt')
-    r, g, b = to_rgb(cluster_color)
-    luminance = 0.2126*r + 0.7152*g + 0.0722*b
-    ax.text(
-        0.5, band_y - 0.024, file_name,
-        transform=ax.get_yaxis_transform(),
-        ha="center", va="center",
-        fontsize=36, fontweight="bold",
-        color="black" if luminance > 0.5 else "white",
-        zorder=6
-    )
+    if bar_text:
+        r, g, b = to_rgb(cluster_color)
+        luminance = 0.2126*r + 0.7152*g + 0.0722*b
+        ax.text(
+            0.5, band_y - 0.024, file_name,
+            transform=ax.get_yaxis_transform(),
+            ha="center", va="center",
+            fontsize=36, fontweight="bold",
+            color="black" if luminance > 0.5 else "white",
+            zorder=6
+        )
 
     # Threshold lines
     # 0 line
     line_width = 14
-    ax.axhline(y=0, linewidth=line_width, color="black", alpha=0.8, zorder=5)
+    ax.axhline(y=0, linewidth=line_width*0.8, color="black", alpha=0.9, zorder=5)
     # positive lines
     ax.axhline(y=measure_threshold_strong, linewidth=line_width, color="tab:green", alpha=0.8, zorder=2)
     ax.axhline(y=measure_threshold_medium, linewidth=line_width, color="tab:red", alpha=0.8, zorder=2)
@@ -153,7 +156,16 @@ def plot_dataset_cluster_profile_charts(
         c_purity_values: dict[str, List[float]],
         cluster_colors: dict[str, str],
         export_path: Path | str,
-        exclude_absent_classes: bool) -> None:
+        exclude_absent_classes: bool,
+        measure_threshold_medium: float = 0.4,
+        measure_threshold_strong: float = 0.7,
+        bar_width: float = 0.3,
+        bar_gap: float = 0.03,
+        bar_text: bool = False,
+        scale_factor: float = 2,
+        fig_height: float = 10,
+        export_format: str = 'svg'
+) -> None:
     """
     Generates Cluster Profile Charts for all clusters in a provided dataset.
     :param class_names: List of category names (groups).
@@ -164,6 +176,14 @@ def plot_dataset_cluster_profile_charts(
     :param cluster_colors: dict (str, str) where keys = cluster names, values = hex codes of cluster identity colors.
     :param export_path: Path of the desired export folder.
     :param exclude_absent_classes: (default False) Exclude classes with MCC = -1.
+    :param measure_threshold_medium: (default 0.4) Threshold for the "good" relationship.
+    :param measure_threshold_strong: (default 0.7) Threshold for the "very good" relationship.
+    :param bar_width: adjust width of plot bars.
+    :param bar_gap: adjust gap between plot bars.
+    :param bar_text: Toggle for rendering cluster name in the cluster membership bad.
+    :param scale_factor: adjust how much will figure expand horizontally for each class
+    :param fig_height: adjust figure height.
+    :param export_format: One of the file extensions supported by matplotlib: png, pdf, ps, eps and svg.
     """
     for key in mcc_values.keys():
         if not mcc_values.keys() == r_mcc_values.keys() == c_purity_values.keys() == cluster_colors.keys():
@@ -178,5 +198,13 @@ def plot_dataset_cluster_profile_charts(
             cluster_color=cluster_colors[key],
             export_path=export_path,
             file_name=key,
-            exclude_absent_classes=exclude_absent_classes
+            exclude_absent_classes=exclude_absent_classes,
+            measure_threshold_medium=measure_threshold_medium,
+            measure_threshold_strong=measure_threshold_strong,
+            bar_width=bar_width,
+            bar_gap=bar_gap,
+            bar_text=bar_text,
+            scale_factor=scale_factor,
+            fig_height=fig_height,
+            export_format=export_format
         )

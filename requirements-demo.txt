@@ -1,0 +1,3 @@
+# The paper data were analyzed using the following dependency versions:
+matplotlib==3.8.0
+numpy==1.26.1
