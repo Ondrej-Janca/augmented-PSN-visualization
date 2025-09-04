@@ -69,7 +69,23 @@ def plot_cluster_profile_chart(
         class_names, class_colors, mcc_values, r_mcc_values, c_purity_values = zip(*filtered_data)
 
     plt.style.use('seaborn-v0_8-darkgrid')
-    plot_face_color = '#eaeaf2'
+
+    # PLOT FACE COLOR
+    plot_face_color = '#ffffff'
+    # plot_face_color = '#eaeaf2' #<- ORIGINAL
+    # plot_face_color = '#d2d2d6'
+
+
+    # rMCC BAR COLOR
+    r_mcc_bar_color = '#ffffff' #<- ORIGINAL
+    # r_mcc_bar_color = '#d2d2d6'
+    # r_mcc_bar_color = '#d2d2d6'
+    # r_mcc_bar_color = '#a2a2a6'
+
+    # APLHA
+    # bar_alpha=0.9
+    bar_alpha=1
+
     hatch_styles = [None, 'X']
     fig_width = len(class_names) * scale_factor
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
@@ -86,10 +102,11 @@ def plot_cluster_profile_chart(
             bar_x_pos = x[i] + (j - len(series) / 2) * (bar_width + bar_gap)  # Adjust position
             if j == 0:  # underlay mcc (first series) with r_mcc
                 bars = ax.bar(bar_x_pos, r_mcc_values[i], bar_width,
-                              color="#ffffff",
+                              #color="#ffffff", <- original
+                              color=r_mcc_bar_color,
                               edgecolor='black',
-                              linewidth=2,
-                              alpha=0.9,
+                              linewidth=4,
+                              alpha=bar_alpha,
                               zorder=3)
             plt.rcParams.update({'hatch.linewidth': 2})
             bars = ax.bar(bar_x_pos, values[i, j], bar_width,
@@ -97,7 +114,7 @@ def plot_cluster_profile_chart(
                           edgecolor='black',
                           hatch=hatch_styles[j],
                           linewidth=2,
-                          alpha=0.9,
+                          alpha=bar_alpha,
                           zorder=4)
 
             group_x_positions.append(bar_x_pos)
@@ -113,7 +130,7 @@ def plot_cluster_profile_chart(
     ax.set_xticks([])
 
     # cluster identity indicator band
-    ax.axhspan(1.01, 1.2, color=cluster_color, clip_on=False)
+    ax.axhspan(1.02, 1.2, color=cluster_color, clip_on=False, zorder=5)
     if bar_text:
         r, g, b = to_rgb(cluster_color)
         luminance = 0.2126*r + 0.7152*g + 0.0722*b
@@ -141,9 +158,12 @@ def plot_cluster_profile_chart(
     ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
     ax.set_facecolor(plot_face_color)
 
+    fig.patch.set(linewidth=10, edgecolor='k', zorder=11)
+
     # Export
-    fname = export_path / f"{file_name}{'_filtered' if exclude_absent_classes else ''}.{export_format}"
-    plt.subplots_adjust(top=1, bottom=0, left=0, right=1)
+    fname = export_path / (f"{file_name}_faceCol={plot_face_color}_barCol={r_mcc_bar_color}_barAlpha={bar_alpha}"
+                           f"{'_filtered' if exclude_absent_classes else ''}.{export_format}")
+    plt.subplots_adjust(top=0.97, bottom=0.01, left=0.01, right=0.99)
     plt.savefig(fname=fname, dpi=300)
     print(f"Exported file: {fname}")
 

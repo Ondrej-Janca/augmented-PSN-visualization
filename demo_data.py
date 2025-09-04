@@ -272,4 +272,5 @@ def run_demo():
     print("----------------------------\n"
           "Demo data plotting finished.")
 
-run_demo()
+#run_demo()
+exp1()
